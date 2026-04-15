@@ -20,7 +20,7 @@ def main():
     if results['error'] > 0:
         print("\nError Logs:")
         for err in error_log_details:
-         print(f"{err['timestamp']} | {err['service']} | {err['message']}")
+         print(f"{err['_time']} | {err['service_name']} | {err['message']}")
 
     error_patterns = get_error_patterns(error_log_details)
 
