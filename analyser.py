@@ -68,7 +68,7 @@ def generate_alerts(results, error_patterns):
     if results['error'] > 3:
         alerts.append({
             "level": "CRITICAL",
-            "message": "High error rate detected"
+            "message": "High Error Rate Detected"
         })
 
     for error, count in error_patterns.items():
