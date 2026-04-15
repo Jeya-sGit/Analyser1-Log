@@ -22,7 +22,7 @@ def main():
 
     error_patterns = get_error_patterns(error_log_details)
 
-    print("\nError Patterns:")
+    print("\nError Patterns :")
     for error, count in error_patterns.items():
         print(f"{error} -> {count} times")
 
