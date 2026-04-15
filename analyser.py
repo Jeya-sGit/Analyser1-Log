@@ -1,5 +1,6 @@
 from collections import Counter
 
+import requests
 
 '''def read_log_file(file_path):  
     try:
@@ -23,36 +24,22 @@ from collections import Counter
     return logs'''
 
 def fetch_logs_from_api():
-    response = {
-        "results": [
-            {
-                "_time": "2026-04-10T10:01:05",
-                "log_level": "ERROR",
-                "message": "DB connection failed",
-                "service_name": "auth-service"
-            },
-            {
-                "_time": "2026-04-10T10:03:15",
-                "log_level": "ERROR",
-                "message": "Timeout while calling API",
-                "service_name": "payment-service"
-            },
-            {
-                "_time": "2026-04-10T10:05:25",
-                "log_level": "ERROR",
-                "message": "DB connection failed",
-                "service_name": "auth-service"
-            },
-            {
-                "_time": "2026-04-10T10:06:30",
-                "log_level": "WARN",
-                "message": "Disk space low",
-                "service_name": "storage-service"
-            }
-        ]
-    }
+    url = "https://jsonplaceholder.typicode.com/posts"
 
-    return response["results"]
+    response = requests.get(url)
+    data = response.json()
+
+    logs = []
+
+    for item in data[:5]:
+        logs.append({
+            "_time": "2026-04-10T10:00:00",
+            "log_level": "ERROR" if item["id"] % 2 == 0 else "INFO",
+            "message": "DB connection failed" if item["id"] % 2 == 0 else item["title"],
+            "service_name": "demo-service"
+        })
+
+    return logs
 
 def count_logs(logs):   
    counts = {
@@ -92,12 +79,14 @@ def get_error_patterns(error_logs):
 def generate_alerts(results, error_patterns):
     alerts = []
 
-    if results['error'] >=3:
+    # CRITICAL
+    if results['error'] > 3:
         alerts.append({
             "level": "CRITICAL",
-            "message": "High Error Rate Detected"
+            "message": "High error rate detected"
         })
 
+    # HIGH
     for error, count in error_patterns.items():
         if count >= 2:
             alerts.append({
@@ -105,16 +94,18 @@ def generate_alerts(results, error_patterns):
                 "message": f"Repeated error: '{error}' occurred {count} times"
             })
 
+    # WARNING
     if results['error'] == 1:
         alerts.append({
             "level": "WARNING",
             "message": "Single error detected"
         })
 
-    if results['error'] == 0:
+    # INFO (important fallback)
+    if not alerts:
         alerts.append({
             "level": "INFO",
-            "message": "No errors detected"
+            "message": "No critical issues detected"
         })
 
     return alerts
