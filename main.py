@@ -1,10 +1,12 @@
-from analyser import generate_alerts, read_log_file, count_logs, extract_error_details,get_error_patterns
+from analyser import generate_alerts, count_logs, extract_error_details,get_error_patterns,fetch_logs_from_api
 
 
 
 def main():
-    log_file = "app.log"
-    logs = read_log_file(log_file)
+    '''log_file = "app.log"
+    logs = read_log_file(log_file)'''
+
+    logs = fetch_logs_from_api()
     
     results = count_logs(logs)
 
@@ -18,7 +20,7 @@ def main():
     if results['error'] > 0:
         print("\nError Logs:")
         for err in error_log_details:
-            print(err)
+         print(f"{err['timestamp']} | {err['service']} | {err['message']}")
 
     error_patterns = get_error_patterns(error_log_details)
 

@@ -1,7 +1,7 @@
 from collections import Counter
 
 
-def read_log_file(file_path):  
+'''def read_log_file(file_path):  
     try:
         with open(file_path, "r") as f:
          logs = f.readlines()
@@ -20,52 +20,81 @@ def read_log_file(file_path):
             'info': 0
         }
     
-    return logs
+    return logs'''
+
+def fetch_logs_from_api():
+    return [
+        {
+            "timestamp": "2026-04-10T10:01:05",
+            "level": "ERROR",
+            "message": "DB connection failed",
+            "service": "auth-service"
+        },
+        {
+            "timestamp": "2026-04-10T10:03:15",
+            "level": "ERROR",
+            "message": "Timeout while calling API",
+            "service": "payment-service"
+        },
+        {
+            "timestamp": "2026-04-10T10:05:25",
+            "level": "ERROR",
+            "message": "DB connection failed",
+            "service": "auth-service"
+        },
+        {
+            "timestamp": "2026-04-10T10:06:30",
+            "level": "WARN",
+            "message": "Disk space low",
+            "service": "storage-service"
+        },
+        {
+            "timestamp": "2026-04-10T10:07:30",
+            "level": "INFO",
+            "message": "Service running",
+            "service": "auth-service"
+        }
+    ]
 
 def count_logs(logs):   
-    error_count = 0
-    warning_count = 0
-    info_count = 0
-    
-    for log in logs:
-        if 'ERROR' in log:
-            error_count += 1
-        elif 'WARN' in log:
-            warning_count += 1
-        elif 'INFO' in log:
-            info_count += 1
-    
-    return {
-        'error': error_count,
-        'warning': warning_count,
-        'info': info_count
+   counts = {
+        "error": 0,
+        "warning": 0,
+        "info": 0
     }
+    
+   for log in logs:
+        if log["level"] == "ERROR":
+            counts["error"] += 1
+        elif log["level"] == "WARN":
+            counts["warning"] += 1
+        elif log["level"] == "INFO":
+            counts["info"] += 1
+
+   return counts
 
 def extract_error_details(logs):
-    error_details = []
-    
+    errors = []
+
     for log in logs:
-        if 'ERROR' in log:
-            error_details.append(log.strip())
-    
-    return error_details
+        if log["level"] == "ERROR":
+            errors.append(log)
+
+    return errors
 
 def get_error_patterns(error_logs):
-    cleaned_errors = []
+    messages = []
 
     for log in error_logs:
-        parts = log.split("ERROR")
-        if len(parts) > 1:
-            error_message = parts[1].strip()
-            cleaned_errors.append(error_message)
+        messages.append(log["message"])
 
-    print(Counter(cleaned_errors)) 
-    return Counter(cleaned_errors)
+    print(messages)
+    return Counter(messages)
 
 def generate_alerts(results, error_patterns):
     alerts = []
 
-    if results['error'] > 3:
+    if results['error'] >=3:
         alerts.append({
             "level": "CRITICAL",
             "message": "High Error Rate Detected"
