@@ -1,6 +1,4 @@
-from analyser import generate_alerts, count_logs, extract_error_details,get_error_patterns,fetch_logs_from_api
-
-
+from analyser import generate_alerts, count_logs, extract_error_details,get_error_patterns,fetch_logs_from_api, prepare_ai_summary,get_ai_analysis
 
 def main():
     '''log_file = "app.log"
@@ -10,7 +8,7 @@ def main():
     
     results = count_logs(logs)
 
-    print("Log Analysis Results:")
+    print("\n========== LOG ANALYSIS ==========")
     print(f"Errors: {results['error']}")
     print(f"Warnings: {results['warning']}")
     print(f"Info: {results['info']}")
@@ -30,10 +28,20 @@ def main():
 
     alerts = generate_alerts(results, error_patterns)
 
-    print("\nAlerts:")
-
+    print("\n========== ALERTS ==========")
     for alert in alerts:
-      print(f"[{alert['level']}] {alert['message']}")
+        print(f"[{alert['level']}] {alert['message']}")
+
+
+    ai_input = prepare_ai_summary(results, error_patterns)
+
+    print("\nAI Input:")
+    print(ai_input)
+
+    ai_output = get_ai_analysis(ai_input)
+
+    print("\n========== AI ANALYSIS ==========")
+    print(ai_output)
 
  
 if __name__ == "__main__":
