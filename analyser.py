@@ -1,6 +1,19 @@
 from collections import Counter
-
+import google.genai as genai
+from dotenv import load_dotenv
+import os
 import requests
+
+
+load_dotenv()
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+'''models = client.models.list()
+
+for m in models:
+    print(m.name)'''
+
+'''genai.configure(api_key=os.getenv("GEMINI_API_KEY"))'''
 
 '''def read_log_file(file_path):  
     try:
@@ -79,14 +92,14 @@ def get_error_patterns(error_logs):
 def generate_alerts(results, error_patterns):
     alerts = []
 
-    # CRITICAL
+   
     if results['error'] > 3:
         alerts.append({
             "level": "CRITICAL",
             "message": "High error rate detected"
         })
 
-    # HIGH
+    
     for error, count in error_patterns.items():
         if count >= 2:
             alerts.append({
@@ -94,14 +107,13 @@ def generate_alerts(results, error_patterns):
                 "message": f"Repeated error: '{error}' occurred {count} times"
             })
 
-    # WARNING
+
     if results['error'] == 1:
         alerts.append({
             "level": "WARNING",
             "message": "Single error detected"
         })
 
-    # INFO (important fallback)
     if not alerts:
         alerts.append({
             "level": "INFO",
@@ -109,3 +121,35 @@ def generate_alerts(results, error_patterns):
         })
 
     return alerts
+
+def prepare_ai_summary(results, error_patterns):
+    summary = f"""
+Log Summary:
+- Errors: {results['error']}
+- Warnings: {results['warning']}
+- Info: {results['info']}
+
+Top Error Patterns:
+"""
+
+    for error, count in error_patterns.items():
+        summary += f"- {error}: {count} times\n"
+
+    return summary
+
+def get_ai_analysis(summary):
+    response = client.models.generate_content(
+       model="gemini-2.5-flash",
+        contents=f"""
+You are an AIOps assistant.
+
+Analyze the logs and provide:
+1. Root cause
+2. Impact
+3. Suggested fixes
+
+{summary}
+"""
+    )
+
+    return response.text
